@@ -1,0 +1,6 @@
+{
+  "name": "MuseWeave",
+  "description": "A premium, high-end 3D interactive artefact carousel designed for a museum installation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

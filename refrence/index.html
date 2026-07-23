@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MuseWeave - Touch Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg: #050403;
+            --color-accent: #C9861A;
+            --color-text: #FFFFFF;
+            --font-head: 'Cormorant Garamond', serif;
+            --font-body: 'DM Sans', sans-serif;
+            /* Scale variables based on a 16:9 inner stage */
+            --sw: min(1vw, 1.7778vh); /* 1% of stage width */
+            --sh: min(0.5625vw, 1vh); /* 1% of stage height */
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+            user-select: none;
+            -webkit-user-drag: none;
+            touch-action: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        #app {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        #stage-16-9 {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 177.78vh;
+            max-height: 56.25vw;
+            overflow: hidden;
+            background: var(--color-bg);
+            box-sizing: border-box;
+        }
+
+        .bg-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(201, 134, 26, 0.12) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .vignette {
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 calc(10 * var(--sw)) rgba(0, 0, 0, 0.95);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Header */
+        #header {
+            position: absolute;
+            top: calc(5 * var(--sh));
+            left: calc(6 * var(--sw));
+            right: calc(6 * var(--sw));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        #title-area {
+            display: flex;
+            align-items: baseline;
+            gap: calc(2 * var(--sw));
+        }
+
+        #app-title {
+            font-family: var(--font-head);
+            font-size: calc(3 * var(--sw));
+            font-weight: 600;
+            color: var(--color-accent);
+        }
+
+        #item-counter {
+            font-family: var(--font-body);
+            font-size: calc(1.4 * var(--sw));
+            letter-spacing: 2px;
+            color: var(--color-text);
+        }
+
+        /* Layout Panel */
+        #layout-panel {
+            position: absolute;
+            top: calc(5 * var(--sh));
+            right: calc(6 * var(--sw));
+            display: flex;
+            gap: calc(1 * var(--sw));
+            z-index: 60;
+            flex-wrap: wrap;
+            width: calc(30 * var(--sw));
+            justify-content: flex-end;
+            pointer-events: none;
+        }
+        
+        .layout-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: calc(1 * var(--sw)) calc(1.5 * var(--sw));
+            border-radius: calc(1 * var(--sw));
+            font-family: var(--font-body);
+            font-size: calc(1.2 * var(--sw));
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            pointer-events: auto;
+            touch-action: manipulation;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        
+        .layout-btn.active, .layout-btn:active {
+            background: rgba(201, 134, 26, 0.4);
+            border-color: var(--color-accent);
+        }
+
+        /* Carousel */
+        #carousel-stage {
+            position: absolute;
+            inset: 0;
+            perspective: 1200px;
+            z-index: 10;
+            transform-style: preserve-3d;
+            transition: filter 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s;
+            touch-action: none;
+        }
+
+        #carousel-stage.dimmed {
+            filter: blur(8px) brightness(0.6);
+            opacity: 0.8;
+        }
+
+        /* Card */
+        .card {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: calc(24 * var(--sw));
+            height: calc(36 * var(--sw));
+            margin-left: calc(-12 * var(--sw));
+            margin-top: calc(-18 * var(--sw));
+            background: rgba(10, 8, 6, 0.6);
+            border: 1px solid rgba(201, 134, 26, 0.3);
+            border-radius: calc(1.5 * var(--sw));
+            overflow: hidden;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            box-shadow: 0 calc(2 * var(--sw)) calc(4 * var(--sw)) rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+
+        .card:active {
+            border-color: rgba(201, 134, 26, 0.8);
+        }
+
+        .card-image-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(5, 4, 3, 0.95) 100%);
+        }
+
+        .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: calc(2.5 * var(--sw));
+            z-index: 2;
+            transform: translateZ(10px);
+            box-sizing: border-box;
+        }
+
+        .card-title {
+            font-family: var(--font-head);
+            font-size: calc(2.2 * var(--sw));
+            font-weight: 600;
+            margin: 0 0 calc(0.5 * var(--sw)) 0;
+            color: var(--color-text);
+            letter-spacing: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-meta {
+            font-family: var(--font-body);
+            font-size: calc(1 * var(--sw));
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Hints */
+        #navigation-hints {
+            position: absolute;
+            bottom: calc(6 * var(--sh));
+            left: calc(6 * var(--sw));
+            right: calc(6 * var(--sw));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: calc(4 * var(--sw));
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .nav-arrow {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: calc(4 * var(--sw));
+            height: calc(4 * var(--sw));
+            min-width: 44px;
+            min-height: 44px;
+            color: white;
+            font-size: calc(2 * var(--sw));
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, border-color 0.2s;
+            touch-action: manipulation;
+            pointer-events: auto;
+        }
+
+        .nav-arrow:active {
+            background: rgba(201, 134, 26, 0.4);
+            border-color: var(--color-accent);
+        }
+
+        .hint-text {
+            font-family: var(--font-body);
+            font-size: calc(1.2 * var(--sw));
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.6);
+            transition: opacity 0.5s;
+        }
+
+        /* Detail Panel */
+        #detail-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 4, 3, 0.7);
+            z-index: 80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        #detail-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .detail-panel {
+            position: relative;
+            width: calc(70 * var(--sw));
+            height: calc(65 * var(--sh));
+            background: rgba(15, 12, 10, 0.95);
+            border: 1px solid rgba(201, 134, 26, 0.4);
+            border-radius: calc(1.5 * var(--sw));
+            display: flex;
+            box-shadow: 0 calc(4 * var(--sh)) calc(10 * var(--sw)) rgba(0,0,0,0.8);
+            transform: translateY(calc(4 * var(--sh))) scale(0.95);
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            box-sizing: border-box;
+        }
+
+        #detail-overlay.active .detail-panel {
+            transform: translateY(0) scale(1);
+        }
+
+        .detail-image {
+            width: 45%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            border-top-left-radius: calc(1.5 * var(--sw));
+            border-bottom-left-radius: calc(1.5 * var(--sw));
+        }
+
+        .detail-content-wrap {
+            width: 55%;
+            height: 100%;
+            padding: calc(5 * var(--sw));
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .detail-content-wrap * {
+            min-width: 0;
+        }
+
+        .detail-close {
+            position: absolute;
+            top: calc(2 * var(--sw));
+            right: calc(2 * var(--sw));
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: calc(2 * var(--sw));
+            width: calc(4 * var(--sw));
+            height: calc(4 * var(--sw));
+            min-width: 56px;
+            min-height: 56px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            touch-action: manipulation;
+            transition: background 0.2s;
+        }
+
+        .detail-close:active {
+            background: rgba(201, 134, 26, 0.5);
+        }
+
+        .detail-title {
+            font-family: var(--font-head);
+            font-size: calc(3.5 * var(--sw));
+            color: var(--color-accent);
+            margin: 0 0 calc(1 * var(--sw)) 0;
+            line-height: 1.1;
+        }
+
+        .detail-meta {
+            font-family: var(--font-body);
+            font-size: calc(1.2 * var(--sw));
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: calc(2.5 * var(--sw));
+            padding-bottom: calc(1.5 * var(--sw));
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .detail-desc {
+            font-family: var(--font-body);
+            font-size: calc(1.4 * var(--sw));
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Debug panel */
+        #debug-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            z-index: 999;
+            pointer-events: none;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="stage-16-9">
+            <div class="bg-glow"></div>
+            <div class="vignette"></div>
+
+            <div id="header">
+                <div id="title-area">
+                    <div id="app-title">MuseWeave</div>
+                    <div id="item-counter">01 / 15</div>
+                </div>
+            </div>
+
+            <div id="layout-panel">
+                <div class="layout-btn active" data-preset="arc">Arc</div>
+                <div class="layout-btn" data-preset="spiral">Spiral</div>
+                <div class="layout-btn" data-preset="fan">Fan</div>
+                <div class="layout-btn" data-preset="gallery">Gallery</div>
+                <div class="layout-btn" data-preset="vortex">Vortex</div>
+                <div class="layout-btn" data-preset="deck">Deck</div>
+                <div class="layout-btn" data-preset="wave">Wave</div>
+                <div class="layout-btn" data-preset="tunnel">Tunnel</div>
+            </div>
+
+            <div id="carousel-stage"></div>
+
+            <div id="navigation-hints">
+                <button class="nav-arrow left-arrow" aria-label="Previous">&#8592;</button>
+                <div class="hint-text">Swipe to explore</div>
+                <button class="nav-arrow right-arrow" aria-label="Next">&#8594;</button>
+            </div>
+
+            <div id="detail-overlay">
+                <div class="detail-panel">
+                    <button class="detail-close" aria-label="Close">&times;</button>
+                    <div class="detail-image" id="detail-img"></div>
+                    <div class="detail-content-wrap">
+                        <h2 class="detail-title" id="detail-title"></h2>
+                        <div class="detail-meta" id="detail-meta"></div>
+                        <div class="detail-desc" id="detail-desc"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="debug-panel">
+                DEBUG MODE ENABLED
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DEBUG_MODE = false;
+
+        const state = {
+            activeIndex: 0,
+            interactionState: 'idle', // idle, dragging, snapping, selected, detail
+            detailOpen: false,
+            primaryPointerId: null,
+            dragStartX: 0,
+            dragCurrentX: 0,
+            isAnimating: false,
+            lastInteractionTime: Date.now()
+        };
+
+        let tapTarget = null;
+        let activeLayout = 'arc';
+
+        const layouts = {
+            arc: function(effectiveOffset, absO, sign) {
+                let tx;
+                if (absO <= 1) tx = sign * absO * 28; 
+                else if (absO <= 2) tx = sign * (28 + (absO - 1) * 18); 
+                else tx = sign * (46 + (absO - 2) * 10); 
+                
+                let scale;
+                if (absO <= 1) scale = 1 - absO * 0.22;
+                else if (absO <= 2) scale = 0.78 - (absO - 1) * 0.2;
+                else scale = Math.max(0.4, 0.58 - (absO - 2) * 0.18);
+                
+                const rotateY = sign * Math.min(absO, 2) * -35; 
+                return { tx, ty: 0, scale, rotateY, rotateX: 0, rotateZ: 0 };
+            },
+            spiral: function(effectiveOffset, absO, sign) {
+                const tx = sign * absO * 18;
+                const ty = effectiveOffset * -15;
+                const scale = Math.max(0.3, 1 - absO * 0.15);
+                const rotateY = sign * Math.min(absO, 2) * -20;
+                return { tx, ty, scale, rotateY, rotateX: 0, rotateZ: 0 };
+            },
+            fan: function(effectiveOffset, absO, sign) {
+                const tx = sign * absO * 25;
+                const ty = absO * 8;
+                const scale = Math.max(0.3, 1 - absO * 0.15);
+                const rotateZ = effectiveOffset * 10;
+                return { tx, ty, scale, rotateY: 0, rotateX: 0, rotateZ };
+            },
+            gallery: function(effectiveOffset, absO, sign) {
+                const tx = sign * (absO <= 0.2 ? absO * 30 : 25 + absO * 8);
+                const scale = Math.max(0.4, 1 - absO * 0.15);
+                const rotateY = sign * Math.min(absO, 1) * 75;
+                return { tx, ty: 0, scale, rotateY, rotateX: 0, rotateZ: 0 };
+            },
+            vortex: function(effectiveOffset, absO, sign) {
+                const tx = Math.sin(effectiveOffset) * 25;
+                const ty = Math.cos(effectiveOffset) * 25 - 25;
+                const scale = Math.max(0.1, 1 - absO * 0.2);
+                const rotateZ = effectiveOffset * 15;
+                return { tx, ty, scale, rotateY: 0, rotateX: 0, rotateZ };
+            },
+            deck: function(effectiveOffset, absO, sign) {
+                const tx = effectiveOffset * 15;
+                const ty = absO * 5;
+                const scale = Math.max(0.3, 1 - absO * 0.15);
+                const rotateX = 15;
+                const rotateY = sign * 5;
+                return { tx, ty, scale, rotateY, rotateX, rotateZ: 0 };
+            },
+            wave: function(effectiveOffset, absO, sign) {
+                const tx = effectiveOffset * 22;
+                const ty = Math.sin(effectiveOffset * 1.5) * 12;
+                const scale = Math.max(0.3, 1 - absO * 0.15);
+                const rotateY = effectiveOffset * 10;
+                return { tx, ty, scale, rotateY, rotateX: 0, rotateZ: 0 };
+            },
+            tunnel: function(effectiveOffset, absO, sign) {
+                const tx = sign * Math.pow(absO, 1.2) * 15;
+                const ty = 0;
+                const scale = Math.max(0.1, Math.pow(0.7, absO)); 
+                const rotateZ = effectiveOffset * 4;
+                return { tx, ty, scale, rotateY: 0, rotateX: 0, rotateZ };
+            }
+        };
+
+        const artefacts = [
+            { title: "Priest King", era: "2000 BCE", origin: "Indus Valley", desc: "A serene steatite sculpture believed to represent a ruler or religious figure of the ancient Harappan civilization, characterized by a meticulously detailed trefoil motif robe.", img: "https://picsum.photos/seed/priest/600/800" },
+            { title: "Dancing Girl", era: "2300 BCE", origin: "Mohenjo-Daro", desc: "A mesmerizing bronze statuette capturing a confident young woman in a naturalistic pose, highlighting the advanced metallurgical skills of the Indus Valley.", img: "https://picsum.photos/seed/dance/600/800" },
+            { title: "Pashupati Seal", era: "2500 BCE", origin: "Indus Valley", desc: "An intricately carved steatite seal depicting a seated figure, potentially a proto-Shiva, surrounded by animals, hinting at early yogic or shamanic traditions.", img: "https://picsum.photos/seed/seal/600/800" },
+            { title: "Rosetta Stone", era: "196 BCE", origin: "Memphis, Egypt", desc: "A grand granodiorite stele inscribed with three versions of a decree, acting as the crucial linguistic key that unlocked the secrets of ancient Egyptian hieroglyphs.", img: "https://picsum.photos/seed/rosetta/600/800" },
+            { title: "Bust of Nefertiti", era: "1345 BCE", origin: "Amarna, Egypt", desc: "A beautifully painted stucco-coated limestone bust of the Great Royal Wife, celebrated as a masterclass in ancient portraiture and feminine grace.", img: "https://picsum.photos/seed/nefertiti/600/800" },
+            { title: "Terracotta Army", era: "210 BCE", origin: "Shaanxi, China", desc: "An awe-inspiring assembly of thousands of life-sized clay soldiers, chariots, and horses buried to protect Qin Shi Huang, the first emperor, in the afterlife.", img: "https://picsum.photos/seed/army/600/800" },
+            { title: "Venus de Milo", era: "100 BCE", origin: "Milos, Greece", desc: "An iconic ancient Greek sculpture depicting Aphrodite, renowned for its timeless beauty and the enduring mystery of its missing arms.", img: "https://picsum.photos/seed/venus/600/800" },
+            { title: "Antikythera Mechanism", era: "100 BCE", origin: "Aegean Sea", desc: "A complex ancient Greek hand-powered orrery and analogue computer, showcasing an astonishingly advanced understanding of astronomical cycles.", img: "https://picsum.photos/seed/mech/600/800" },
+            { title: "Sutton Hoo Helmet", era: "625 CE", origin: "Suffolk, England", desc: "A breathtaking, ornate Anglo-Saxon helmet discovered in a lavish ship burial, symbolizing the martial prowess and wealth of early medieval nobility.", img: "https://picsum.photos/seed/helmet/600/800" },
+            { title: "Lewis Chessmen", era: "12th Century", origin: "Isle of Lewis", desc: "A distinctive collection of 12th-century chess pieces carved mostly from walrus ivory, reflecting the intricate artistry of the Norse-Gaelic world.", img: "https://picsum.photos/seed/chess/600/800" },
+            { title: "Mask of Tutankhamun", era: "1323 BCE", origin: "Valley of Kings", desc: "The legendary gold death mask of the 18th-dynasty ancient Egyptian pharaoh, heavily inlaid with colored glass and precious stones.", img: "https://picsum.photos/seed/tut/600/800" },
+            { title: "Code of Hammurabi", era: "1750 BCE", origin: "Babylon", desc: "A towering diorite stele bearing one of the oldest deciphered writings of significant length, containing a comprehensive set of Babylonian laws.", img: "https://picsum.photos/seed/code/600/800" },
+            { title: "Nebra Sky Disk", era: "1600 BCE", origin: "Saxony-Anhalt", desc: "An enigmatic bronze disk inlaid with gold symbols representing the sun, moon, and stars, considered the oldest concrete depiction of the cosmos worldwide.", img: "https://picsum.photos/seed/sky/600/800" },
+            { title: "Moai Statue", era: "1250 CE", origin: "Easter Island", desc: "A monumental, monolithic human figure carved by the Rapa Nui people, serving as a powerful embodiment of ancestral spirits and island heritage.", img: "https://picsum.photos/seed/moai/600/800" },
+            { title: "Aztec Sun Stone", era: "1500 CE", origin: "Tenochtitlan", desc: "A massive, intricately carved basalt calendar stone of the Mexica people, depicting the complex cosmology and mythological cycles of the Aztec universe.", img: "https://picsum.photos/seed/aztec/600/800" }
+        ];
+
+        const totalCards = artefacts.length;
+        const cards = [];
+        const DRAG_THRESHOLD = 40;
+
+        function init() {
+            const stage = document.getElementById('carousel-stage');
+            
+            artefacts.forEach((art, i) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.index = i;
+                card.innerHTML = `
+                    <div class="card-image-container">
+                        <div class="card-image" style="background-image: url('${art.img}')"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${art.title}</h3>
+                        <p class="card-meta">${art.era} • ${art.origin}</p>
+                    </div>
+                `;
+                stage.appendChild(card);
+                cards.push({ el: card, index: i });
+            });
+            
+            if (DEBUG_MODE) {
+                document.getElementById('debug-panel').style.display = 'block';
+            } else {
+                document.getElementById('debug-panel').style.display = 'none';
+            }
+
+            setupEventListeners();
+            snapToCurrent();
+        }
+
+        // Derives stable math-based values for any offset position
+        function getTransformForOffset(effectiveOffset) {
+            const absO = Math.abs(effectiveOffset);
+            const sign = Math.sign(effectiveOffset);
+            
+            const layoutFn = layouts[activeLayout] || layouts['arc'];
+            const { tx, ty, scale, rotateY, rotateX, rotateZ } = layoutFn(effectiveOffset, absO, sign);
+            
+            const opacity = Math.max(0, 1 - Math.max(0, absO - 0.5) * 0.5); 
+            const blur = Math.max(0, (absO - 0.2) * 3); 
+            const zIndex = 30 - Math.floor(absO * 10);
+            
+            return { tx, ty, scale, opacity, rotateY, rotateX, rotateZ, blur, zIndex };
+        }
+
+        function renderCarousel(dragOffset = 0) {
+            cards.forEach((card, i) => {
+                let offset = (i - state.activeIndex) % totalCards;
+                // Shortest path around the loop
+                if (offset > totalCards / 2) offset -= totalCards;
+                if (offset < -totalCards / 2) offset += totalCards;
+                
+                const effectiveOffset = offset - dragOffset;
+                const { tx, ty, scale, opacity, rotateY, rotateX, rotateZ, blur, zIndex } = getTransformForOffset(effectiveOffset);
+                
+                // Construct single CSS transform string using CSS variables based on stage size
+                card.el.style.transform = `translate3d(calc(${tx} * var(--sw)), calc(${ty} * var(--sh)), 0) scale(${scale}) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`;
+                card.el.style.zIndex = Math.max(0, zIndex);
+                card.el.style.opacity = opacity;
+                card.el.style.filter = `blur(${blur}px)`;
+            });
+        }
+
+        function updatePointerEvents() {
+            cards.forEach((card, i) => {
+                let offset = (i - state.activeIndex) % totalCards;
+                if (offset > totalCards / 2) offset -= totalCards;
+                if (offset < -totalCards / 2) offset += totalCards;
+                
+                const absO = Math.abs(offset);
+                const isInteractable = absO < 1.5 && !state.detailOpen && !state.isAnimating;
+                card.el.style.pointerEvents = isInteractable ? 'auto' : 'none';
+            });
+        }
+
+        function setTransition(enabled) {
+            cards.forEach(card => {
+                if (enabled) {
+                    card.el.style.transition = 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s cubic-bezier(0.22, 1, 0.36, 1)';
+                } else {
+                    card.el.style.transition = 'none';
+                }
+            });
+        }
+
+        function snapToCurrent() {
+            state.isAnimating = true;
+            state.interactionState = 'snapping';
+            setTransition(true);
+            renderCarousel(0);
+            updatePointerEvents();
+            
+            document.getElementById('item-counter').textContent = 
+                String(state.activeIndex + 1).padStart(2, '0') + ' / ' + totalCards;
+            
+            // Subtly hide hint text after user learns how to swipe
+            if (state.lastInteractionTime > Date.now() - 5000) {
+                document.querySelector('.hint-text').style.opacity = '0';
+            }
+            
+            setTimeout(() => {
+                state.isAnimating = false;
+                state.interactionState = 'idle';
+                updatePointerEvents();
+            }, 350);
+        }
+
+        function goToNext() {
+            state.activeIndex = (state.activeIndex + 1) % totalCards;
+            snapToCurrent();
+        }
+
+        function goToPrevious() {
+            state.activeIndex = (state.activeIndex - 1 + totalCards) % totalCards;
+            snapToCurrent();
+        }
+
+        function goToIndex(index) {
+            state.activeIndex = index;
+            snapToCurrent();
+        }
+
+        function handlePointerDown(e) {
+            if (state.detailOpen || state.isAnimating) return;
+            if (state.primaryPointerId !== null) return;
+            
+            state.primaryPointerId = e.pointerId;
+            state.dragStartX = e.clientX;
+            state.dragCurrentX = e.clientX;
+            state.lastInteractionTime = Date.now();
+            
+            tapTarget = e.target.closest('.card');
+            
+            document.getElementById('carousel-stage').setPointerCapture(e.pointerId);
+        }
+
+        function handlePointerMove(e) {
+            if (e.pointerId !== state.primaryPointerId) return;
+            
+            state.dragCurrentX = e.clientX;
+            const dx = state.dragCurrentX - state.dragStartX;
+            
+            // Only engage drag state if movement exceeds threshold
+            if (state.interactionState !== 'dragging' && Math.abs(dx) > DRAG_THRESHOLD) {
+                state.interactionState = 'dragging';
+                setTransition(false);
+            }
+            
+            if (state.interactionState === 'dragging') {
+                const dragFraction = dx / (window.innerWidth * 0.25);
+                renderCarousel(dragFraction);
+            }
+            
+            state.lastInteractionTime = Date.now();
+        }
+
+        function handlePointerUp(e) {
+            if (e.pointerId !== state.primaryPointerId) return;
+            
+            state.primaryPointerId = null;
+            
+            if (state.interactionState === 'dragging') {
+                const dx = state.dragCurrentX - state.dragStartX;
+                
+                if (dx > DRAG_THRESHOLD) {
+                    goToPrevious();
+                } else if (dx < -DRAG_THRESHOLD) {
+                    goToNext();
+                } else {
+                    snapToCurrent(); 
+                }
+            } else {
+                // Determine if it was a valid tap on a card
+                if (tapTarget) {
+                    const index = parseInt(tapTarget.dataset.index, 10);
+                    if (index === state.activeIndex) {
+                        openDetail(artefacts[index]);
+                    } else {
+                        goToIndex(index);
+                    }
+                }
+            }
+            
+            tapTarget = null;
+            state.lastInteractionTime = Date.now();
+        }
+
+        function openDetail(item) {
+            state.detailOpen = true;
+            const overlay = document.getElementById('detail-overlay');
+            
+            document.getElementById('detail-img').style.backgroundImage = `url('${item.img}')`;
+            document.getElementById('detail-title').textContent = item.title;
+            document.getElementById('detail-meta').textContent = `${item.era} • ${item.origin}`;
+            document.getElementById('detail-desc').textContent = item.desc;
+            
+            overlay.classList.add('active');
+            document.getElementById('carousel-stage').classList.add('dimmed');
+            updatePointerEvents();
+        }
+
+        function closeDetail() {
+            state.detailOpen = false;
+            document.getElementById('detail-overlay').classList.remove('active');
+            document.getElementById('carousel-stage').classList.remove('dimmed');
+            state.lastInteractionTime = Date.now();
+            updatePointerEvents();
+        }
+
+        function setupEventListeners() {
+            const stage = document.getElementById('carousel-stage');
+            stage.addEventListener('pointerdown', handlePointerDown);
+            stage.addEventListener('pointermove', handlePointerMove);
+            stage.addEventListener('pointerup', handlePointerUp);
+            stage.addEventListener('pointercancel', handlePointerUp);
+            
+            document.querySelector('.left-arrow').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!state.detailOpen && !state.isAnimating) {
+                    goToPrevious();
+                    state.lastInteractionTime = Date.now();
+                }
+            });
+            
+            document.querySelector('.right-arrow').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!state.detailOpen && !state.isAnimating) {
+                    goToNext();
+                    state.lastInteractionTime = Date.now();
+                }
+            });
+            
+            document.querySelector('.detail-close').addEventListener('click', closeDetail);
+            document.getElementById('detail-overlay').addEventListener('click', e => {
+                if (e.target.id === 'detail-overlay') closeDetail();
+            });
+
+            document.querySelectorAll('.layout-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeLayout = btn.dataset.preset;
+                    snapToCurrent();
+                    state.lastInteractionTime = Date.now();
+                });
+            });
+        }
+
+        // Idle timer behavior
+        setInterval(() => {
+            if (Date.now() - state.lastInteractionTime > 25000) {
+                resetToIdle();
+            }
+        }, 5000);
+
+        function resetToIdle() {
+            if (state.detailOpen) {
+                closeDetail();
+                setTimeout(() => {
+                    if(state.activeIndex !== 0) goToIndex(0);
+                }, 400);
+            } else if (state.activeIndex !== 0) {
+                goToIndex(0);
+            }
+            document.querySelector('.hint-text').style.opacity = '0.7';
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
