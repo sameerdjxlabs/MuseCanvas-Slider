@@ -3,7 +3,7 @@ function DetailOverlay({ item, open, onClose }) {
 
   return (
     <div
-      className={`mw-detail-overlay${open ? ' active' : ''}`}
+      className={`mw-detail-overlay${open ? ' ' : ''}`}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}

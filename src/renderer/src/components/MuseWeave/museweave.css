@@ -51,9 +51,10 @@ body,
   max-width: 177.78vh;
   max-height: 56.25vw;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse 55% 50% at 50% 48%, rgba(255, 159, 28, 0.16) 0%, transparent 70%),
-    var(--mw-bg);
+ background-image: url('/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   box-sizing: border-box;
 }
 
@@ -160,8 +161,8 @@ body,
 }
 
 .mw-carousel-stage.dimmed {
-  filter: blur(8px) brightness(0.6);
-  opacity: 0.8;
+  /* filter: blur(8px) brightness(0.6); */
+  /* opacity: 0; */
 }
 
 .mw-card {
