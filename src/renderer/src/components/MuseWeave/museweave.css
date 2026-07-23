@@ -92,15 +92,6 @@ body,
   gap: calc(2 * var(--sw));
 }
 
-.mw-app-title {
-  font-family: var(--mw-font-body);
-  font-size: calc(2.4 * var(--sw));
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  text-transform: lowercase;
-  color: var(--mw-text);
-}
-
 .mw-item-counter {
   font-family: var(--mw-font-head);
   font-size: calc(1.5 * var(--sw));
@@ -313,6 +304,36 @@ body,
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.mw-card-brand {
+  display: flex;
+  align-items: center;
+  margin-left: calc(3 * var(--sw));
+  gap: calc(0.7 * var(--sw));
+  margin-top: calc(0.6 * var(--sw));
+  min-width: 0;
+}
+
+.mw-card-brand-powered {
+  font-family: var(--mw-font-body);
+  font-size: calc(0.75 * var(--sw));
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mw-card-brand-dj {
+  height: calc(1.4 * var(--sw));
+  width: auto;
+  max-width: 55%;
+  object-fit: contain;
+  object-position: left center;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .mw-navigation-hints {

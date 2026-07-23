@@ -24,6 +24,10 @@ function CarouselCard({ artefact, style, transitionEnabled, interactable, isActi
         </div>
         <span className="mw-card-pill">Details of extraction</span>
         <p className="mw-card-desc">{artefact.desc}</p>
+        <div className="mw-card-brand">
+          <span className="mw-card-brand-powered">powered by</span>
+          <img src="/djlogo.png" alt="DJ labs" className="mw-card-brand-dj" />
+        </div>
       </div>
     </div>
   )

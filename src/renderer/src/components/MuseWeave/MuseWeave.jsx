@@ -379,10 +379,26 @@ function MuseWeave() {
 
         <div className="mw-header">
           <div className="mw-title-area">
-            <div className="mw-app-title">muse weave</div>
-            {settings.showCounter && <div className="mw-item-counter">{counter}</div>}
+            {/* Logo on the left */}
+            <img
+              src="/logo.png"
+              alt="MuseWeave Logo"
+              className="mw-header-logo"
+              style={{
+                height: 'calc(3.5 * var(--sw))',
+                width: 'auto',
+                minHeight: 40,
+                // marginRight: 'calc(2 * var(--sw))',
+                userSelect: 'none',
+                pointerEvents: 'none',
+                display: 'block'
+              }}
+              draggable="false"
+            />
+            {settings.showCounter && <div className="mw-item-counter" style={{ transform: 'translateY(-15px)' }}>{counter}</div>}
           </div>
         </div>
+  
 
         {settings.showLayoutPanel && (
           <LayoutPanel activeLayout={settings.layout} onChange={handleLayoutChange} />
