@@ -6,9 +6,11 @@ function CarouselCard({ artefact, style, transitionEnabled, interactable }) {
       style={{
         ...style,
         pointerEvents: interactable ? 'auto' : 'none',
-        transition: transitionEnabled
-          ? 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s cubic-bezier(0.22, 1, 0.36, 1)'
-          : 'none'
+        transition:
+          style?.transition ??
+          (transitionEnabled
+            ? 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s cubic-bezier(0.22, 1, 0.36, 1)'
+            : 'none')
       }}
     >
       <div className="mw-card-image-container">

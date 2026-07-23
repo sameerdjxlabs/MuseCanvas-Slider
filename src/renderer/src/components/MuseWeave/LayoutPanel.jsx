@@ -3,7 +3,7 @@ import { LAYOUT_PRESETS } from '../../data/artefacts'
 function LayoutPanel({ activeLayout, onChange }) {
   return (
     <div className="mw-layout-panel">
-      {LAYOUT_PRESETS.map((preset) => (
+      {/* {LAYOUT_PRESETS.map((preset) => (
         <button
           key={preset}
           type="button"
@@ -15,7 +15,7 @@ function LayoutPanel({ activeLayout, onChange }) {
         >
           {preset}
         </button>
-      ))}
+      ))} */}
     </div>
   )
 }
