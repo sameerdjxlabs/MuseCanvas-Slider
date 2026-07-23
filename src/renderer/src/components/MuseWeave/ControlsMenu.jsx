@@ -226,6 +226,31 @@ function ControlsMenu({ open, settings, onChange, onReset, onClose }) {
           </section>
 
           <section className="mw-controls-section">
+            <h3>Input Mode</h3>
+            <div className="mw-ctrl-chips">
+              <button
+                type="button"
+                className={`mw-ctrl-chip${settings.inputMode === 'gesture' ? ' active' : ''}`}
+                onClick={() => set('inputMode', 'gesture')}
+              >
+                Gesture
+              </button>
+              <button
+                type="button"
+                className={`mw-ctrl-chip${settings.inputMode === 'pointer' ? ' active' : ''}`}
+                onClick={() => set('inputMode', 'pointer')}
+              >
+                Mouse / Touch
+              </button>
+            </div>
+            <p className="mw-ctrl-hint">
+              {settings.inputMode === 'gesture'
+                ? 'Pinch and drag with your hand to change slides.'
+                : 'Swipe or drag with mouse / touch. Camera is off.'}
+            </p>
+          </section>
+
+          <section className="mw-controls-section">
             <h3>UI</h3>
             <ToggleRow
               label="Show Swipe Hints"

@@ -24,6 +24,7 @@ export const DEFAULT_SETTINGS = {
   dragSensitivity: 0.25,
   dragThreshold: 40,
   idleTimeout: 25,
+  inputMode: 'pointer',
   showHints: true,
   showLayoutPanel: true,
   showCounter: true

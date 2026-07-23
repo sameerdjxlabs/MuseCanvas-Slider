@@ -1,0 +1,83 @@
+.mw-webcam {
+  position: absolute;
+  left: calc(2.5 * var(--sw));
+  bottom: calc(2.5 * var(--sh));
+  z-index: 70;
+  width: calc(22 * var(--sw));
+  min-width: 160px;
+  max-width: 240px;
+  border: 1px solid rgba(201, 134, 26, 0.35);
+  border-radius: calc(1 * var(--sw));
+  overflow: hidden;
+  background: rgba(8, 6, 5, 0.85);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.mw-webcam--hidden {
+  opacity: 0;
+}
+
+.mw-webcam__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.mw-webcam__status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.mw-webcam__status--active {
+  background: #c9861a;
+  box-shadow: 0 0 8px rgba(201, 134, 26, 0.8);
+}
+
+.mw-webcam__label {
+  font-family: var(--mw-font-body);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.mw-webcam__feed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #000;
+}
+
+.mw-webcam__video,
+.mw-webcam__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.mw-webcam__canvas {
+  pointer-events: none;
+}
+
+.mw-hand-hint {
+  position: absolute;
+  bottom: calc(12 * var(--sh));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 55;
+  pointer-events: none;
+  font-family: var(--mw-font-body);
+  font-size: calc(1.1 * var(--sw));
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+}

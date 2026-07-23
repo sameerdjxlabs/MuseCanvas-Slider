@@ -505,6 +505,13 @@ body,
   border-color: var(--mw-accent);
 }
 
+.mw-ctrl-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.45);
+}
+
 .mw-ctrl-row {
   display: block;
   margin-bottom: 14px;
