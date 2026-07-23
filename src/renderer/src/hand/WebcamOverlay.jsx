@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react'
 import { DrawingUtils, HandLandmarker } from '@mediapipe/tasks-vision'
 import './handtracking.css'
 
-const LANDMARK_STYLE = { color: '#c9861a', lineWidth: 2 }
-const CONNECTOR_STYLE = { color: '#c9861a', lineWidth: 1.5 }
+const LANDMARK_STYLE = { color: '#ffb347', lineWidth: 2 }
+const CONNECTOR_STYLE = { color: '#ffb347', lineWidth: 1.5 }
 
 /**
  * Small PIP webcam preview with hand skeleton overlay.

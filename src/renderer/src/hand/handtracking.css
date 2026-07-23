@@ -6,7 +6,7 @@
   width: calc(22 * var(--sw));
   min-width: 160px;
   max-width: 240px;
-  border: 1px solid rgba(201, 134, 26, 0.35);
+  border: 1px solid rgba(255, 179, 71, 0.35);
   border-radius: calc(1 * var(--sw));
   overflow: hidden;
   background: rgba(8, 6, 5, 0.85);
@@ -35,8 +35,8 @@
 }
 
 .mw-webcam__status--active {
-  background: #c9861a;
-  box-shadow: 0 0 8px rgba(201, 134, 26, 0.8);
+  background: #ffb347;
+  box-shadow: 0 0 8px rgba(255, 179, 71, 0.8);
 }
 
 .mw-webcam__label {

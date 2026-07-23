@@ -48,7 +48,7 @@ body {
   color: var(--color-text);
   background: #000;
   line-height: 1.6;
-  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

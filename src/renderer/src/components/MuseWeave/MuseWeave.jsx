@@ -379,7 +379,7 @@ function MuseWeave() {
 
         <div className="mw-header">
           <div className="mw-title-area">
-            <div className="mw-app-title">MuseWeave</div>
+            <div className="mw-app-title">muse weave</div>
             {settings.showCounter && <div className="mw-item-counter">{counter}</div>}
           </div>
         </div>
@@ -410,6 +410,7 @@ function MuseWeave() {
                 key={`${artefact.title}-${i}`}
                 artefact={{ ...artefact, index: i }}
                 interactable={interactable}
+                isActive={Math.abs(effectiveOffset) < 0.45}
                 transitionEnabled={transitionEnabled}
                 style={{
                   transition: transitionCss,

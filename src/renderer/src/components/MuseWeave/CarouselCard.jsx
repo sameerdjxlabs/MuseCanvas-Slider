@@ -1,7 +1,7 @@
-function CarouselCard({ artefact, style, transitionEnabled, interactable }) {
+function CarouselCard({ artefact, style, transitionEnabled, interactable, isActive }) {
   return (
     <div
-      className="mw-card"
+      className={`mw-card${isActive ? ' is-active' : ''}`}
       data-index={artefact.index}
       style={{
         ...style,
@@ -16,11 +16,14 @@ function CarouselCard({ artefact, style, transitionEnabled, interactable }) {
       <div className="mw-card-image-container">
         <div className="mw-card-image" style={{ backgroundImage: `url('${artefact.img}')` }} />
       </div>
+      <div className="mw-card-pattern" aria-hidden="true" />
       <div className="mw-card-content">
-        <h3 className="mw-card-title">{artefact.title}</h3>
-        <p className="mw-card-meta">
-          {artefact.era} • {artefact.origin}
-        </p>
+        <div className="mw-card-title-row">
+          <h3 className="mw-card-title">{artefact.title}</h3>
+          <p className="mw-card-meta">{artefact.era}</p>
+        </div>
+        <span className="mw-card-pill">Details of extraction</span>
+        <p className="mw-card-desc">{artefact.desc}</p>
       </div>
     </div>
   )
